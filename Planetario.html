@@ -1,0 +1,175 @@
+<html class="translated-ltr">
+<head>
+<meta charset="UTF-8">
+<title>Sistema Solar en Three.js</title>
+<script src="three.js"></script>
+<script src="OrbitControls.js"></script>
+<script>
+
+"use strict";
+
+let canvas, renderer, scene, camera; 
+
+let controls; 
+               
+let animating = false;  
+let frameNumber = 0;  
+
+let sun, mercury, venus, earth, moon, mars, jupiter; // Planetas
+
+
+function render() {
+    renderer.render(scene, camera);
+}
+
+
+function createWorld() {
+    renderer.setClearColor("black"); 
+    scene = new THREE.Scene();
+    
+    // ------------------- crear la camara  ----------------------
+    
+   
+    camera = new THREE.PerspectiveCamera(30, canvas.width/canvas.height, 0.1, 100);
+    camera.position.z = 80;
+    let light;  
+    light = new THREE.DirectionalLight();
+    light.position.set(0,0,1);
+    camera.add(light);
+    scene.add(camera);
+    scene.add(new THREE.AmbientLight(0x202020));  // agregar iluminación
+    
+    //------------------- Crear los planetas ----------------------
+    
+    sun = createPlanet(5, 'textures/sol.jpg'); // Sun
+    sun.position.x = 0;
+
+    mercury = createPlanet(0.5, 'textures/mercurio.jpeg'); // Mercury
+    mercury.position.x = 8;
+    
+    venus = createPlanet(0.7, 'textures/venus.jpg'); // Venus
+    venus.position.x = 12;
+    
+    earth = createPlanet(1, 'textures/tierra.jpg'); // Earth
+    earth.position.x = 16;
+
+    moon = createPlanet(0.25, 'textures/luna.jpg'); // Moon
+    earth.position.x = 17.5;
+    
+    mars = createPlanet(0.7, 'textures/marte.png'); // Mars
+    mars.position.x = 22;
+
+    jupiter = createPlanet(2, 'textures/jupiter.png'); // Jupiter
+    jupiter.position.x = 26;
+
+    scene.add(sun);
+    scene.add(mercury);
+    scene.add(venus);
+    scene.add(earth);
+    scene.add(moon);
+    scene.add(mars);
+    scene.add(jupiter);
+
+    let spaceTexture = new THREE.TextureLoader().load('textures/espacio.jpg');
+    scene.background = spaceTexture;
+}
+
+function createPlanet(radius, texturePath) {
+    let texture = new THREE.TextureLoader().load(texturePath);
+    return new THREE.Mesh(
+        new THREE.SphereGeometry(radius, 32, 32),
+        new THREE.MeshLambertMaterial({
+            map: texture
+        })
+    );
+}
+
+function updateForFrame() {
+    if (animating) {
+        frameNumber++;
+        
+        sun.rotation.y += 0.009;
+        mercury.rotation.y += 0.01;
+        venus.rotation.y += 0.01;
+        earth.rotation.y += 0.01;
+        moon.rotation.y += 0.01;
+        mars.rotation.y += 0.01;
+        jupiter.rotation.y += 0.01;
+        
+        let speedFactor = 0.01;
+        mercury.position.x = 8 * Math.cos(frameNumber * speedFactor*0.3);
+        mercury.position.z = 8 * Math.sin(frameNumber * speedFactor*0.3);
+        
+        venus.position.x = 12 * Math.cos(frameNumber * speedFactor * 0.25);
+        venus.position.z = 12 * Math.sin(frameNumber * speedFactor * 0.25);
+        
+        earth.position.x = 16 * Math.cos(frameNumber * speedFactor * 0.2);
+        earth.position.z = 16 * Math.sin(frameNumber * speedFactor * 0.2);
+        
+        moon.position.x = 17.5 * Math.cos(frameNumber * speedFactor * 0.21);
+        moon.position.z = 17.5 * Math.sin(frameNumber * speedFactor * 0.21);
+
+        mars.position.x = 22 * Math.cos(frameNumber * speedFactor * 0.19);
+        mars.position.z = 22 * Math.sin(frameNumber * speedFactor * 0.19);
+        
+        jupiter.position.x = 26 * Math.cos(frameNumber * speedFactor * 0.18);
+        jupiter.position.z = 26 * Math.sin(frameNumber * speedFactor * 0.18);
+
+        render();
+    }
+}
+
+
+function doAnimateCheckbox() {
+   animating = document.getElementById("animateCheckbox").checked;
+   if (animating) {
+       requestAnimationFrame(doFrame);
+   }
+}
+
+function doFrame() {
+    if (animating) {
+        updateForFrame();
+        requestAnimationFrame(doFrame);
+    }
+}
+
+
+function init() {
+    try {
+        canvas = document.getElementById("glcanvas");
+        renderer = new THREE.WebGLRenderer({
+            canvas: canvas,
+            antialias: true,
+            alpha: false
+        });
+    }
+    catch (e) {
+        document.getElementById("message").innerHTML="<b>Sorry, an error occurred:<br>" +
+                e + "</b>";
+        return;
+    }
+    document.getElementById("animateCheckbox").checked = false;
+    document.getElementById("animateCheckbox").onchange = doAnimateCheckbox;
+    
+    createWorld();
+    render();
+}
+
+window.onload = init;  
+
+</script>
+</head>
+<body>
+
+<h2>Sistema Solar en Three.js</h2>
+
+<p>
+   <label><input type="checkbox" id="animateCheckbox">Animar</label>
+</p>
+<div id="canvas-holder">
+   <canvas width="800" height="600" id="glcanvas"></canvas>
+</div>
+
+</body>
+</html>
